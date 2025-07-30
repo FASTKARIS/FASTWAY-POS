@@ -1,0 +1,3556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fastway Technologies - Internal POS System</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --primary-dark: #0055aa;
+            --secondary-color: #4CAF50;
+            --secondary-dark: #45a049;
+            --danger-color: #f44336;
+            --danger-dark: #d32f2f;
+            --warning-color: #FFA500;
+            --warning-dark: #e69500;
+            --gray-color: #666;
+            --gray-dark: #555;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --black: #333333;
+            --success-color: #28a745;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--black);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 28px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .branch-selector {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin: 2px;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            background-color: var(--gray-color);
+        }
+
+        .secondary-btn:hover {
+            background-color: var(--gray-dark);
+        }
+
+        .add-product-btn {
+            background-color: var(--secondary-color);
+        }
+
+        .add-product-btn:hover {
+            background-color: var(--secondary-dark);
+        }
+
+        .edit-btn {
+            background-color: var(--warning-color);
+        }
+
+        .edit-btn:hover {
+            background-color: var(--warning-dark);
+        }
+
+        .delete-btn {
+            background-color: var(--danger-color);
+        }
+
+        .delete-btn:hover {
+            background-color: var(--danger-dark);
+        }
+
+        .logout-btn {
+            background-color: var(--gray-color);
+        }
+
+        .logout-btn:hover {
+            background-color: var(--gray-dark);
+        }
+
+        .admin-btn {
+            background-color: #6a0dad;
+        }
+
+        .admin-btn:hover {
+            background-color: #5a0b9d;
+        }
+
+        .sales-btn {
+            background-color: #9c27b0;
+        }
+
+        .sales-btn:hover {
+            background-color: #7b1fa2;
+        }
+
+        .discount-btn {
+            background-color: #17a2b8;
+        }
+
+        .discount-btn:hover {
+            background-color: #138496;
+        }
+
+        .customer-btn {
+            background-color: #6c757d;
+        }
+
+        .customer-btn:hover {
+            background-color: #5a6268;
+        }
+
+        .employee-btn {
+            background-color: #20c997;
+        }
+
+        .employee-btn:hover {
+            background-color: #1aa179;
+        }
+
+        main {
+            display: flex;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+            }
+        }
+
+        .product-section {
+            flex: 2;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .product-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 5px;
+        }
+
+        .search-box input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .product-card h3 {
+            margin: 0 0 5px 0;
+            color: var(--primary-color);
+            font-size: 18px;
+        }
+
+        .product-card .price {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .product-card .stock {
+            font-size: 14px;
+            color: var(--gray-color);
+        }
+
+        .stock-warning {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        .category-tag {
+            display: inline-block;
+            background-color: #e6f2ff;
+            color: var(--primary-color);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .badge {
+            background: var(--secondary-color);
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .warning-badge {
+            background: var(--warning-color);
+        }
+
+        .danger-badge {
+            background: var(--danger-color);
+        }
+
+        .cart-section {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .cart-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quantity-btn {
+            width: 25px;
+            height: 25px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quantity {
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .remove-btn {
+            background: var(--danger-color);
+            margin-left: auto;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 20px 0;
+            padding-top: 10px;
+            border-top: 2px solid var(--primary-color);
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .cart-actions button {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .discount-control {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            align-items: center;
+        }
+
+        .discount-control input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .customer-control {
+            margin-top: 10px;
+        }
+
+        .customer-control select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, 
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        input.error {
+            border-color: var(--danger-color);
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 2000;
+            color: white;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #receipt {
+            display: none;
+            font-family: monospace;
+            background: white;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .receipt-header h2 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .receipt-header p {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+
+        .receipt-header .tagline {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .receipt-header .website {
+            margin-bottom: 15px;
+        }
+
+        .receipt-customer {
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .receipt-details {
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .receipt-details-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .receipt-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 12px;
+        }
+
+        .receipt-items th {
+            text-align: left;
+            padding: 3px 0;
+            border-bottom: 1px dashed #000;
+        }
+
+        .receipt-items td {
+            padding: 3px 0;
+        }
+
+        .receipt-items .product {
+            text-align: left;
+            width: 50%;
+        }
+
+        .receipt-items .qty {
+            text-align: center;
+            width: 15%;
+        }
+
+        .receipt-items .price {
+            text-align: right;
+            width: 20%;
+        }
+
+        .receipt-items .total {
+            text-align: right;
+            width: 15%;
+        }
+
+        .receipt-divider {
+            border-top: 1px dashed #000;
+            margin: 10px 0;
+        }
+
+        .receipt-total {
+            text-align: right;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .receipt-discount {
+            text-align: right;
+            color: var(--danger-color);
+        }
+
+        .receipt-grand-total {
+            text-align: right;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .payment-method {
+            font-size: 12px;
+            margin: 10px 0;
+        }
+
+        .receipt-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        .disabled-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .disabled-message {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Enhanced Login Overlay */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .login-box {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .login-branding {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .login-branding h2 {
+            color: var(--primary-color);
+            margin: 15px 0 5px 0;
+            font-size: 24px;
+        }
+        
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--gray-color);
+            margin-bottom: 10px;
+        }
+        
+        .security-notice {
+            background-color: #fff8e1;
+            border-left: 4px solid var(--warning-color);
+            padding: 10px;
+            margin: 15px 0;
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+        
+        .legal-links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--gray-color);
+        }
+        
+        .legal-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .legal-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .login-form label {
+            font-weight: 500;
+            color: var(--gray-dark);
+        }
+        
+        .login-form input {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: bold;
+            background-color: var(--primary-color);
+        }
+
+        .login-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Security verification */
+        #security-verification {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: var(--success-color);
+        }
+
+        /* Action modal styles */
+        .action-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            width: 100%;
+            padding: 12px;
+        }
+
+        .product-info {
+            margin-bottom: 20px;
+        }
+
+        .product-info p {
+            margin: 5px 0;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .quantity-control input {
+            width: 60px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        /* Sales report styles */
+        .sales-report {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .sales-report h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .sales-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .sales-filters select,
+        .sales-filters input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .sales-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: var(--gray-color);
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .summary-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .sales-table th,
+        .sales-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sales-table th {
+            background-color: var(--light-gray);
+            font-weight: bold;
+        }
+
+        .sales-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Employee management styles */
+        .employee-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .employee-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .employee-table th,
+        .employee-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .employee-table th {
+            background-color: var(--light-gray);
+            font-weight: bold;
+        }
+
+        .employee-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            z-index: 3000;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .notification.success {
+            background-color: var(--success-color);
+        }
+
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+
+        .notification.warning {
+            background-color: var(--warning-color);
+        }
+
+        /* Customer modal styles */
+        .customer-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        /* Employee modal styles */
+        .employee-modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        /* Export controls */
+        .export-controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Footer styles */
+        footer {
+            margin-top: 40px;
+            padding: 20px 0;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray-color);
+        }
+
+        /* Network status indicator */
+        .network-status {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+
+        .network-status.online {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .network-status.offline {
+            background-color: var(--danger-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced Login Overlay with Security Features -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-box">
+            <div class="login-branding">
+                <img src="assets/logo.png" alt="Fastway Technologies" class="logo" onerror="this.style.display='none'" style="height: 60px;">
+                <h2>FASTWAY TECHNOLOGIES</h2>
+                <p class="login-subtitle">Internal Point of Sale System</p>
+                <div class="security-notice">
+                    <p>⚠️ This system is for authorized Fastway Technologies employees only</p>
+                    <p>All access is monitored and recorded</p>
+                </div>
+            </div>
+            <div id="security-verification">
+                <p>Verifying your credentials...</p>
+            </div>
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="employee-id">Employee ID</label>
+                    <input type="text" id="employee-id" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="employee-pin">Security PIN</label>
+                    <input type="password" id="employee-pin" required autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label for="access-level">Access Level</label>
+                    <select id="access-level" required>
+                        <option value="">Select Access Level</option>
+                        <option value="admin">Administrator</option>
+                        <option value="manager">Manager</option>
+                        <option value="cashier">Cashier</option>
+                    </select>
+                </div>
+                <button type="submit" class="login-btn">Authenticate</button>
+            </form>
+            <div class="legal-links">
+                <a href="#" onclick="showPrivacyPolicy()">Privacy Policy</a> | 
+                <a href="#" onclick="showTermsOfService()">Terms of Use</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- POS Interface (hidden until login) -->
+    <div id="pos-interface" style="display: none;">
+        <div class="container">
+            <header>
+                <div class="logo-title">
+                    <img src="assets/logo.png" alt="Fastway Logo" class="logo" onerror="this.style.display='none'">
+                    <h1>FASTWAY TECHNOLOGIES POS</h1>
+                </div>
+                <div class="header-info">
+                    <select id="branch-selector" class="branch-selector">
+                        <option value="nairobi">Nairobi Branch</option>
+                        <option value="mombasa">Mombasa Branch</option>
+                        <option value="kisumu">Kisumu Branch</option>
+                    </select>
+                    <div class="user-info">
+                        <span id="current-user">Not logged in</span>
+                        <button id="admin-dashboard-btn" class="admin-btn" style="display: none;">Admin Dashboard</button>
+                        <button id="sales-report-btn" class="sales-btn" style="display: none;">Sales Report</button>
+                        <button id="customer-manager-btn" class="customer-btn" style="display: none;">Customers</button>
+                        <button id="employee-manager-btn" class="employee-btn" style="display: none;">Employees</button>
+                        <button id="logout-btn" class="logout-btn">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main>
+                <section class="product-section">
+                    <div class="product-header">
+                        <h2>Products</h2>
+                        <div class="product-controls">
+                            <div class="search-box">
+                                <input type="text" id="product-search" placeholder="Search products...">
+                                <button id="search-btn">🔍</button>
+                            </div>
+                            <button class="add-product-btn" id="add-product-btn">+ Add Product</button>
+                        </div>
+                    </div>
+                    <div class="loading" id="products-loading">Loading products...</div>
+                    <div class="product-grid" id="products"></div>
+                </section>
+
+                <section class="cart-section">
+                    <h2>Current Sale <span id="cart-count" class="badge">0</span></h2>
+                    <div id="cart-items"></div>
+                    <div class="cart-total">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">Ksh 0.00</span>
+                    </div>
+                    <div class="discount-control">
+                        <input type="number" id="discount-input" placeholder="Discount % (0-100)">
+                        <button id="apply-discount-btn" class="discount-btn">Apply</button>
+                    </div>
+                    <div class="cart-total">
+                        <span>Discount:</span>
+                        <span id="discount-amount">Ksh 0.00</span>
+                    </div>
+                    <div class="cart-total">
+                        <span>Total:</span>
+                        <span id="total">Ksh 0.00</span>
+                    </div>
+                    <div class="customer-control">
+                        <select id="customer-select">
+                            <option value="">Walk-in Customer</option>
+                        </select>
+                    </div>
+                    <div class="cart-actions">
+                        <button id="clear-cart-btn" class="secondary-btn">Clear Cart</button>
+                        <button id="checkout-btn">Complete Sale</button>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Sales Report Section (visible to admin/manager) -->
+            <div id="sales-report-section" class="sales-report" style="display: none;">
+                <h2>Sales Report</h2>
+                <div class="sales-filters">
+                    <select id="sales-branch-filter">
+                        <option value="all">All Branches</option>
+                        <option value="nairobi">Nairobi</option>
+                        <option value="mombasa">Mombasa</option>
+                        <option value="kisumu">Kisumu</option>
+                    </select>
+                    <select id="sales-time-filter">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                        <option value="all">All Time</option>
+                    </select>
+                    <input type="date" id="sales-start-date">
+                    <input type="date" id="sales-end-date">
+                    <button id="apply-sales-filter" class="secondary-btn">Apply Filters</button>
+                </div>
+                <div class="export-controls">
+                    <button id="export-sales-btn" class="secondary-btn">Export Sales Data</button>
+                </div>
+                <div class="sales-summary">
+                    <div class="summary-card">
+                        <h3>Total Sales</h3>
+                        <p id="total-sales-amount">Ksh 0.00</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Number of Transactions</h3>
+                        <p id="total-transactions">0</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Average Sale</h3>
+                        <p id="average-sale">Ksh 0.00</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Items Sold</h3>
+                        <p id="total-items-sold">0</p>
+                    </div>
+                </div>
+                <table class="sales-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Receipt #</th>
+                            <th>Branch</th>
+                            <th>Cashier</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Subtotal</th>
+                            <th>Discount</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sales-report-data">
+                        <!-- Sales data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Customer Management Section -->
+            <div id="customer-section" class="sales-report" style="display: none;">
+                <h2>Customer Management</h2>
+                <div class="product-controls">
+                    <button id="add-customer-btn" class="add-product-btn">+ Add Customer</button>
+                </div>
+                <table class="sales-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customer-data">
+                        <!-- Customer data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Employee Management Section -->
+            <div id="employee-section" class="employee-section" style="display: none;">
+                <h2>Employee Management</h2>
+                <div class="product-controls">
+                    <button id="add-employee-btn" class="add-product-btn">+ Add Employee</button>
+                </div>
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th>Branch</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employee-data">
+                        <!-- Employee data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Product Action Modal -->
+        <div id="action-modal" class="modal">
+            <div class="action-modal-content">
+                <div class="modal-header">
+                    <h2 id="action-product-name">Product Name</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="product-info">
+                    <p>Price: <span id="action-product-price">Ksh 0.00</span></p>
+                    <p>Stock: <span id="action-product-stock">0 remaining</span></p>
+                    <p>Category: <span id="action-product-category">N/A</span></p>
+                    <p>Barcode: <span id="action-product-barcode">N/A</span></p>
+                </div>
+                <div class="quantity-control">
+                    <label for="action-quantity">Quantity:</label>
+                    <input type="number" id="action-quantity" min="1" value="1">
+                </div>
+                <div class="action-buttons">
+                    <button id="add-to-cart-btn" class="add-product-btn">Add to Cart</button>
+                    <button id="edit-product-btn" class="edit-btn">Edit Product</button>
+                    <button id="delete-product-btn" class="delete-btn">Delete Product</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Form Modal -->
+        <div id="product-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modal-title">Add New Product</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <form id="product-form">
+                    <div class="form-group">
+                        <label for="product-name">Product Name</label>
+                        <input type="text" id="product-name" required>
+                        <div class="error-message" id="product-name-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">Price (Ksh)</label>
+                        <input type="number" id="product-price" required>
+                        <div class="error-message" id="product-price-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-stock">Stock Quantity</label>
+                        <input type="number" id="product-stock" required>
+                        <div class="error-message" id="product-stock-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-category">Category</label>
+                        <input type="text" id="product-category">
+                    </div>
+                    <div class="form-group">
+                        <label for="product-barcode">Barcode</label>
+                        <input type="text" id="product-barcode">
+                    </div>
+                    <button type="button" id="save-product-btn">Save Product</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Customer Form Modal -->
+        <div id="customer-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="customer-modal-title">Add New Customer</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <form id="customer-form">
+                    <div class="form-group">
+                        <label for="customer-name">Full Name</label>
+                        <input type="text" id="customer-name" required>
+                        <div class="error-message" id="customer-name-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-phone">Phone Number</label>
+                        <input type="tel" id="customer-phone" required>
+                        <div class="error-message" id="customer-phone-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-email">Email</label>
+                        <input type="email" id="customer-email">
+                    </div>
+                    <div class="form-group">
+                        <label for="customer-address">Address</label>
+                        <textarea id="customer-address" rows="3"></textarea>
+                    </div>
+                    <button type="button" id="save-customer-btn">Save Customer</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Employee Form Modal -->
+        <div id="employee-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="employee-modal-title">Add New Employee</h2>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <form id="employee-form">
+                    <div class="form-group">
+                        <label for="employee-name">Full Name</label>
+                        <input type="text" id="employee-name" required>
+                        <div class="error-message" id="employee-name-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-username">Username</label>
+                        <input type="text" id="employee-username" required>
+                        <div class="error-message" id="employee-username-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-password">Password</label>
+                        <input type="password" id="employee-password" required>
+                        <div class="error-message" id="employee-password-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-role">Role</label>
+                        <select id="employee-role" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="manager">Manager</option>
+                            <option value="cashier">Cashier</option>
+                        </select>
+                        <div class="error-message" id="employee-role-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-branch">Branch</label>
+                        <select id="employee-branch" required>
+                            <option value="">Select Branch</option>
+                            <option value="nairobi">Nairobi</option>
+                            <option value="mombasa">Mombasa</option>
+                            <option value="kisumu">Kisumu</option>
+                            <option value="all">All Branches</option>
+                        </select>
+                        <div class="error-message" id="employee-branch-error"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="employee-status">Status</label>
+                        <select id="employee-status" required>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <button type="button" id="save-employee-btn">Save Employee</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p id="loading-message">Processing...</p>
+        </div>
+
+        <!-- Receipt (hidden until checkout) -->
+        <div id="receipt">
+            <div class="receipt-header">
+                <h2>FASTWAY TECHNOLOGIES</h2>
+                <p id="receipt-branch">Nairobi Branch</p>
+                <p id="receipt-date">2023-01-01 12:00</p>
+                <p id="receipt-cashier">Cashier: John Doe</p>
+                <div id="receipt-customer" class="receipt-customer" style="display: none;">
+                    <p>Customer: <span id="receipt-customer-name"></span></p>
+                    <p>Phone: <span id="receipt-customer-phone"></span></p>
+                </div>
+                <p class="tagline">Quality Tech Solutions</p>
+                <p class="website">www.fastwaytech.co.ke</p>
+            </div>
+            <div class="receipt-details">
+                <div class="receipt-details-row">
+                    <span>Receipt #:</span>
+                    <span id="receipt-number">FST12345</span>
+                </div>
+                <div class="receipt-details-row">
+                    <span>Payment Method:</span>
+                    <span id="receipt-payment">MPESA</span>
+                </div>
+                <div class="receipt-details-row">
+                    <span>Till Number:</span>
+                    <span id="receipt-till-number">123456</span>
+                </div>
+            </div>
+            <table class="receipt-items">
+                <thead>
+                    <tr>
+                        <th class="product">Product</th>
+                        <th class="qty">Qty</th>
+                        <th class="price">Price</th>
+                        <th class="total">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="receipt-items-body"></tbody>
+            </table>
+            <div class="receipt-divider"></div>
+            <div class="receipt-total">
+                Subtotal: Ksh <span id="receipt-subtotal">0.00</span>
+            </div>
+            <div class="receipt-discount">
+                Discount: Ksh <span id="receipt-discount">0.00</span>
+            </div>
+            <div class="receipt-grand-total">
+                Total: Ksh <span id="receipt-total">0.00</span>
+            </div>
+            <div class="receipt-footer">
+                <p>Thank you for shopping with us!</p>
+                <p>Goods sold are not returnable</p>
+            </div>
+        </div>
+
+        <!-- Footer with company info -->
+        <footer>
+            <p>© 2025 Fastway Technologies. All rights reserved.</p>
+            <p>For support, contact: fastway1technologies@gmail.com | +254 105 607877</p>
+        </footer>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Network Status Indicator -->
+    <div id="network-status" class="network-status offline">Offline</div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacy-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Privacy Policy</h2>
+                <button class="close-modal" onclick="hidePrivacyPolicy()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Fastway Technologies POS System Privacy Policy</h3>
+                <p>This internal POS system collects minimal employee data required for authentication and operation purposes only.</p>
+                <p>We store:</p>
+                <ul>
+                    <li>Employee IDs and encrypted credentials for system access</li>
+                    <li>Transaction records for accounting and inventory purposes</li>
+                    <li>Customer information only when provided during checkout</li>
+                </ul>
+                <p>All data is stored securely and accessed only by authorized personnel.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div id="terms-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Terms of Service</h2>
+                <button class="close-modal" onclick="hideTermsOfService()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Fastway Technologies POS System Terms</h3>
+                <p>This system is for authorized Fastway Technologies employees only.</p>
+                <p>By accessing this system, you agree to:</p>
+                <ul>
+                    <li>Use the system only for legitimate business purposes</li>
+                    <li>Keep your credentials secure and not share them</li>
+                    <li>Comply with all company policies and procedures</li>
+                    <li>Report any suspicious activity immediately</li>
+                </ul>
+                <p>Unauthorized access or misuse may result in disciplinary action.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global helper functions
+        function showPrivacyPolicy() {
+            document.getElementById('privacy-modal').style.display = 'flex';
+            return false;
+        }
+
+        function hidePrivacyPolicy() {
+            document.getElementById('privacy-modal').style.display = 'none';
+        }
+
+        function showTermsOfService() {
+            document.getElementById('terms-modal').style.display = 'flex';
+            return false;
+        }
+
+        function hideTermsOfService() {
+            document.getElementById('terms-modal').style.display = 'none';
+        }
+
+        class DataManager {
+            static peers = {};
+            static connections = {};
+            static isHost = false;
+            static hostId = null;
+            static data = {
+                branches: {},
+                users: [],
+                sales: [],
+                customers: []
+            };
+
+            static async initialize() {
+                // Try to connect to existing host
+                this.peer = new Peer();
+                
+                this.peer.on('open', (id) => {
+                    console.log('My peer ID is: ' + id);
+                    
+                    // Check if there's a host in localStorage
+                    const savedHost = localStorage.getItem('posHostId');
+                    if (savedHost && savedHost !== id) {
+                        this.connectToHost(savedHost);
+                    } else {
+                        this.becomeHost();
+                    }
+                });
+
+                this.peer.on('connection', (conn) => {
+                    conn.on('open', () => {
+                        console.log('Connected to: ' + conn.peer);
+                        this.connections[conn.peer] = conn;
+                        
+                        // Send full data to new connection
+                        if (this.isHost) {
+                            conn.send({
+                                type: 'full-sync',
+                                data: this.data
+                            });
+                        }
+                    });
+
+                    conn.on('data', (data) => {
+                        this.handleIncomingData(data);
+                    });
+
+                    conn.on('close', () => {
+                        delete this.connections[conn.peer];
+                    });
+                });
+
+                // Initialize IndexedDB for offline support
+                await this.initIndexedDB();
+            }
+
+            static async initIndexedDB() {
+                return new Promise((resolve) => {
+                    const request = indexedDB.open('FastwayPOS', 1);
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        db.createObjectStore('branches', { keyPath: 'id' });
+                        db.createObjectStore('users', { keyPath: 'id' });
+                        db.createObjectStore('sales', { keyPath: 'id' });
+                        db.createObjectStore('customers', { keyPath: 'id' });
+                    };
+                    
+                    request.onsuccess = (event) => {
+                        this.db = event.target.result;
+                        this.loadFromIndexedDB().then(resolve);
+                    };
+                });
+            }
+
+            static async loadFromIndexedDB() {
+                return new Promise((resolve) => {
+                    const transaction = this.db.transaction(['branches', 'users', 'sales', 'customers'], 'readonly');
+                    
+                    transaction.objectStore('branches').getAll().onsuccess = (event) => {
+                        event.target.result.forEach(branch => {
+                            this.data.branches[branch.id] = branch;
+                        });
+                    };
+                    
+                    transaction.objectStore('users').getAll().onsuccess = (event) => {
+                        this.data.users = event.target.result;
+                    };
+                    
+                    transaction.objectStore('sales').getAll().onsuccess = (event) => {
+                        this.data.sales = event.target.result;
+                    };
+                    
+                    transaction.objectStore('customers').getAll().onsuccess = (event) => {
+                        this.data.customers = event.target.result;
+                    };
+                    
+                    transaction.oncomplete = () => resolve();
+                });
+            }
+
+            static saveToIndexedDB() {
+                const transaction = this.db.transaction(['branches', 'users', 'sales', 'customers'], 'readwrite');
+                
+                // Clear existing data
+                transaction.objectStore('branches').clear();
+                transaction.objectStore('users').clear();
+                transaction.objectStore('sales').clear();
+                transaction.objectStore('customers').clear();
+                
+                // Save branches
+                Object.values(this.data.branches).forEach(branch => {
+                    transaction.objectStore('branches').put(branch);
+                });
+                
+                // Save other data
+                this.data.users.forEach(user => {
+                    transaction.objectStore('users').put(user);
+                });
+                
+                this.data.sales.forEach(sale => {
+                    transaction.objectStore('sales').put(sale);
+                });
+                
+                this.data.customers.forEach(customer => {
+                    transaction.objectStore('customers').put(customer);
+                });
+            }
+
+            static becomeHost() {
+                this.isHost = true;
+                this.hostId = this.peer.id;
+                localStorage.setItem('posHostId', this.hostId);
+                
+                // Initialize with default data if empty
+                if (Object.keys(this.data.branches).length === 0) {
+                    this.data = {
+                        branches: {
+                            nairobi: {
+                                id: 'nairobi',
+                                name: "Nairobi Branch",
+                                products: [
+                                    { id: 1, name: "HP EliteBook Laptop", price: 89999, stock: 15, category: "Laptops", barcode: "123456789" },
+                                    { id: 2, name: "Wireless Mouse", price: 2499, stock: 42, category: "Accessories", barcode: "987654321" }
+                                ]
+                            },
+                            mombasa: {
+                                id: 'mombasa',
+                                name: "Mombasa Branch",
+                                products: [
+                                    { id: 1, name: "HP EliteBook Laptop", price: 89999, stock: 10, category: "Laptops", barcode: "123456789" },
+                                    { id: 2, name: "Wireless Mouse", price: 2499, stock: 30, category: "Accessories", barcode: "987654321" },
+                                    { id: 3, name: "External HDD 1TB", price: 7999, stock: 12, category: "Storage", barcode: "654321987" }
+                                ]
+                            },
+                            kisumu: {
+                                id: 'kisumu',
+                                name: "Kisumu Branch",
+                                products: [
+                                    { id: 1, name: "HP EliteBook Laptop", price: 89999, stock: 8, category: "Laptops", barcode: "123456789" },
+                                    { id: 2, name: "Bluetooth Speaker", price: 5999, stock: 15, category: "Audio", barcode: "321987654" }
+                                ]
+                            }
+                        },
+                        users: [
+                            { 
+                                id: 1,
+                                username: "admin", 
+                                password: "Fast@2025", 
+                                name: "System Admin",
+                                role: "admin", 
+                                branch: "all",
+                                status: "active",
+                                lastLogin: null
+                            },
+                            { 
+                                id: 2,
+                                username: "manager", 
+                                password: "Fast@2025/", 
+                                name: "Branch Manager",
+                                role: "manager", 
+                                branch: "nairobi",
+                                status: "active",
+                                lastLogin: null
+                            },
+                            { 
+                                id: 3,
+                                username: "cashier", 
+                                password: "Fast@2025//", 
+                                name: "Sales Cashier",
+                                role: "cashier", 
+                                branch: "nairobi",
+                                status: "active",
+                                lastLogin: null
+                            }
+                        ],
+                        sales: [],
+                        customers: [
+                            {
+                                id: 1,
+                                name: "John Doe",
+                                phone: "0712345678",
+                                email: "john@example.com",
+                                address: "123 Main St, Nairobi"
+                            },
+                            {
+                                id: 2,
+                                name: "Jane Smith",
+                                phone: "0723456789",
+                                email: "jane@example.com",
+                                address: "456 Park Ave, Mombasa"
+                            }
+                        ]
+                    };
+                    this.saveToIndexedDB();
+                }
+                
+                console.log('This device is now the host');
+            }
+
+            static connectToHost(hostId) {
+                const conn = this.peer.connect(hostId);
+                
+                conn.on('open', () => {
+                    console.log('Connected to host: ' + hostId);
+                    this.hostId = hostId;
+                    this.connections[hostId] = conn;
+                    localStorage.setItem('posHostId', hostId);
+                });
+                
+                conn.on('data', (data) => {
+                    this.handleIncomingData(data);
+                });
+                
+                conn.on('close', () => {
+                    console.log('Connection to host lost');
+                    delete this.connections[hostId];
+                    // Try to reconnect or become host
+                    setTimeout(() => {
+                        if (!this.isHost) {
+                            this.connectToHost(hostId);
+                        }
+                    }, 5000);
+                });
+            }
+
+            static handleIncomingData(data) {
+                switch(data.type) {
+                    case 'full-sync':
+                        this.data = data.data;
+                        this.saveToIndexedDB();
+                        break;
+                        
+                    case 'update':
+                        this.data[data.store] = data.data;
+                        this.saveToIndexedDB();
+                        break;
+                        
+                    case 'add':
+                        this.data[data.store].push(data.item);
+                        this.saveToIndexedDB();
+                        break;
+                        
+                    case 'remove':
+                        this.data[data.store] = this.data[data.store].filter(item => item.id !== data.id);
+                        this.saveToIndexedDB();
+                        break;
+                }
+                
+                // Notify UI to update
+                if (window.posSystem) {
+                    window.posSystem.dataUpdated();
+                }
+            }
+
+            static broadcast(data) {
+                if (this.isHost) {
+                    // Save to local data and IndexedDB first
+                    this.handleIncomingData(data);
+                    
+                    // Broadcast to all connected clients
+                    Object.values(this.connections).forEach(conn => {
+                        conn.send(data);
+                    });
+                } else if (this.hostId && this.connections[this.hostId]) {
+                    // Send to host
+                    this.connections[this.hostId].send(data);
+                }
+            }
+
+            // Data access methods
+            static getBranches() {
+                return this.data.branches;
+            }
+
+            static getProducts(branch) {
+                return this.data.branches[branch]?.products || [];
+            }
+
+            static getUsers() {
+                return this.data.users;
+            }
+
+            static getSalesRecords() {
+                return this.data.sales;
+            }
+
+            static getCustomers() {
+                return this.data.customers;
+            }
+
+            // Data modification methods
+            static saveBranches(branches) {
+                this.data.branches = branches;
+                this.broadcast({
+                    type: 'update',
+                    store: 'branches',
+                    data: branches
+                });
+            }
+
+            static saveUsers(users) {
+                this.data.users = users;
+                this.broadcast({
+                    type: 'update',
+                    store: 'users',
+                    data: users
+                });
+            }
+
+            static saveSalesRecords(sales) {
+                this.data.sales = sales;
+                this.broadcast({
+                    type: 'update',
+                    store: 'sales',
+                    data: sales
+                });
+            }
+
+            static saveCustomers(customers) {
+                this.data.customers = customers;
+                this.broadcast({
+                    type: 'update',
+                    store: 'customers',
+                    data: customers
+                });
+            }
+
+            static addProduct(branchId, product) {
+                if (!this.data.branches[branchId]) return;
+                
+                const products = this.data.branches[branchId].products;
+                product.id = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                products.push(product);
+                
+                this.broadcast({
+                    type: 'update',
+                    store: 'branches',
+                    data: this.data.branches
+                });
+            }
+
+            static updateProduct(branchId, productId, updatedProduct) {
+                if (!this.data.branches[branchId]) return;
+                
+                const products = this.data.branches[branchId].products;
+                const index = products.findIndex(p => p.id === productId);
+                
+                if (index !== -1) {
+                    products[index] = {
+                        ...products[index],
+                        name: updatedProduct.name,
+                        price: parseInt(updatedProduct.price),
+                        stock: parseInt(updatedProduct.stock),
+                        category: updatedProduct.category,
+                        barcode: updatedProduct.barcode
+                    };
+                    
+                    this.broadcast({
+                        type: 'update',
+                        store: 'branches',
+                        data: this.data.branches
+                    });
+                }
+            }
+
+            static deleteProduct(branchId, productId) {
+                if (!this.data.branches[branchId]) return;
+                
+                const products = this.data.branches[branchId].products;
+                const index = products.findIndex(p => p.id === productId);
+                
+                if (index !== -1) {
+                    products.splice(index, 1);
+                    this.broadcast({
+                        type: 'update',
+                        store: 'branches',
+                        data: this.data.branches
+                    });
+                }
+            }
+
+            static addCustomer(customer) {
+                const customers = this.data.customers;
+                customer.id = customers.length > 0 ? Math.max(...customers.map(c => c.id)) + 1 : 1;
+                customers.push(customer);
+                
+                this.broadcast({
+                    type: 'update',
+                    store: 'customers',
+                    data: customers
+                });
+            }
+
+            static updateCustomer(customerId, updatedCustomer) {
+                const customers = this.data.customers;
+                const index = customers.findIndex(c => c.id === customerId);
+                
+                if (index !== -1) {
+                    customers[index] = {
+                        ...customers[index],
+                        name: updatedCustomer.name,
+                        phone: updatedCustomer.phone,
+                        email: updatedCustomer.email,
+                        address: updatedCustomer.address
+                    };
+                    
+                    this.broadcast({
+                        type: 'update',
+                        store: 'customers',
+                        data: customers
+                    });
+                }
+            }
+
+            static deleteCustomer(customerId) {
+                const customers = this.data.customers;
+                const index = customers.findIndex(c => c.id === customerId);
+                
+                if (index !== -1) {
+                    customers.splice(index, 1);
+                    this.broadcast({
+                        type: 'update',
+                        store: 'customers',
+                        data: customers
+                    });
+                }
+            }
+
+            static addEmployee(employee) {
+                const users = this.data.users;
+                
+                // Check if username already exists
+                const usernameExists = users.some(u => u.username.toLowerCase() === employee.username.toLowerCase());
+                if (usernameExists) {
+                    throw new Error("Username already exists");
+                }
+                
+                employee.id = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+                employee.lastLogin = null;
+                users.push(employee);
+                
+                this.broadcast({
+                    type: 'update',
+                    store: 'users',
+                    data: users
+                });
+            }
+
+            static updateEmployee(employeeId, updatedEmployee) {
+                const users = this.data.users;
+                const index = users.findIndex(u => u.id === employeeId);
+                
+                if (index !== -1) {
+                    users[index] = {
+                        ...users[index],
+                        name: updatedEmployee.name,
+                        username: updatedEmployee.username,
+                        password: updatedEmployee.password,
+                        role: updatedEmployee.role,
+                        branch: updatedEmployee.role === 'admin' ? 'all' : updatedEmployee.branch,
+                        status: updatedEmployee.status
+                    };
+                    
+                    this.broadcast({
+                        type: 'update',
+                        store: 'users',
+                        data: users
+                    });
+                }
+            }
+
+            static deleteEmployee(employeeId) {
+                const users = this.data.users;
+                const index = users.findIndex(u => u.id === employeeId);
+                
+                if (index !== -1) {
+                    users.splice(index, 1);
+                    this.broadcast({
+                        type: 'update',
+                        store: 'users',
+                        data: users
+                    });
+                }
+            }
+        }
+
+        class Utils {
+            static showLoading(message = "Processing...") {
+                const loadingOverlay = document.getElementById('loading-overlay');
+                const loadingMessage = document.getElementById('loading-message');
+                
+                if (loadingOverlay && loadingMessage) {
+                    loadingMessage.textContent = message;
+                    loadingOverlay.style.display = 'flex';
+                }
+            }
+            
+            static hideLoading() {
+                const loadingOverlay = document.getElementById('loading-overlay');
+                if (loadingOverlay) {
+                    loadingOverlay.style.display = 'none';
+                }
+            }
+            
+            static showNotification(message, type = "success") {
+                const container = document.getElementById('notification-container');
+                if (!container) return;
+                
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.textContent = message;
+                
+                container.appendChild(notification);
+                
+                // Remove notification after animation
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+            
+            static formatCurrency(amount) {
+                return `Ksh ${parseFloat(amount || 0).toLocaleString('en-KE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            }
+            
+            static validateProduct(product) {
+                const errors = {};
+                if (!product.name || product.name.length < 2) {
+                    errors.name = "Product name must be at least 2 characters";
+                }
+                if (!product.price || isNaN(product.price) || product.price <= 0) {
+                    errors.price = "Price must be a positive number";
+                }
+                if (!product.stock || isNaN(product.stock) || product.stock < 0) {
+                    errors.stock = "Stock must be 0 or more";
+                }
+                return errors;
+            }
+
+            static validateCustomer(customer) {
+                const errors = {};
+                if (!customer.name || customer.name.length < 2) {
+                    errors.name = "Name must be at least 2 characters";
+                }
+                if (!customer.phone || customer.phone.length < 9) {
+                    errors.phone = "Please enter a valid phone number";
+                }
+                return errors;
+            }
+
+            static validateEmployee(employee) {
+                const errors = {};
+                if (!employee.name || employee.name.length < 2) {
+                    errors.name = "Name must be at least 2 characters";
+                }
+                if (!employee.username || employee.username.length < 3) {
+                    errors.username = "Username must be at least 3 characters";
+                }
+                if (!employee.password || employee.password.length < 4) {
+                    errors.password = "Password must be at least 4 characters";
+                }
+                if (!employee.role) {
+                    errors.role = "Please select a role";
+                }
+                if (!employee.branch) {
+                    errors.branch = "Please select a branch";
+                }
+                return errors;
+            }
+
+            static formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            }
+
+            static getDateRange(filter) {
+                const now = new Date();
+                const start = new Date();
+                
+                switch(filter) {
+                    case 'today':
+                        start.setHours(0, 0, 0, 0);
+                        return { start, end: now };
+                    case 'week':
+                        start.setDate(now.getDate() - now.getDay());
+                        start.setHours(0, 0, 0, 0);
+                        return { start, end: now };
+                    case 'month':
+                        start.setDate(1);
+                        start.setHours(0, 0, 0, 0);
+                        return { start, end: now };
+                    case 'year':
+                        start.setMonth(0, 1);
+                        start.setHours(0, 0, 0, 0);
+                        return { start, end: now };
+                    default:
+                        return { start: new Date(0), end: now };
+                }
+            }
+
+            static sanitizeInput(input) {
+                if (!input) return '';
+                return input.toString().replace(/<[^>]*>?/gm, '');
+            }
+
+            static generateUniqueId(items) {
+                const maxId = items.reduce((max, item) => Math.max(max, item.id || 0), 0);
+                return maxId + 1;
+            }
+        }
+
+        class POSSystem {
+            constructor() {
+                this.state = {
+                    currentBranch: "nairobi",
+                    currentUser: null,
+                    cart: [],
+                    subtotal: 0,
+                    discount: 0,
+                    total: 0,
+                    currentProductId: null,
+                    currentCustomerId: null,
+                    currentEmployeeId: null,
+                    isEditing: false,
+                    filteredProducts: null,
+                    showSalesReport: false,
+                    showCustomerSection: false,
+                    showEmployeeSection: false,
+                    sessionTimeout: null
+                };
+                
+                this.initializeDOMReferences();
+                this.loadInitialState();
+                this.resetSessionTimer();
+            }
+            
+            initializeDOMReferences() {
+                this.dom = {
+                    loginOverlay: document.getElementById('login-overlay'),
+                    loginForm: document.getElementById('login-form'),
+                    usernameInput: document.getElementById('employee-id'),
+                    passwordInput: document.getElementById('employee-pin'),
+                    roleInput: document.getElementById('access-level'),
+                    posInterface: document.getElementById('pos-interface'),
+                    branchSelector: document.getElementById('branch-selector'),
+                    currentUserSpan: document.getElementById('current-user'),
+                    logoutBtn: document.getElementById('logout-btn'),
+                    adminDashboardBtn: document.getElementById('admin-dashboard-btn'),
+                    salesReportBtn: document.getElementById('sales-report-btn'),
+                    customerManagerBtn: document.getElementById('customer-manager-btn'),
+                    employeeManagerBtn: document.getElementById('employee-manager-btn'),
+                    productsContainer: document.getElementById('products'),
+                    productsLoading: document.getElementById('products-loading'),
+                    productSearch: document.getElementById('product-search'),
+                    searchBtn: document.getElementById('search-btn'),
+                    addProductBtn: document.getElementById('add-product-btn'),
+                    cartContainer: document.getElementById('cart-items'),
+                    subtotalElement: document.getElementById('subtotal'),
+                    discountInput: document.getElementById('discount-input'),
+                    applyDiscountBtn: document.getElementById('apply-discount-btn'),
+                    discountAmount: document.getElementById('discount-amount'),
+                    totalElement: document.getElementById('total'),
+                    cartCount: document.getElementById('cart-count'),
+                    checkoutBtn: document.getElementById('checkout-btn'),
+                    clearCartBtn: document.getElementById('clear-cart-btn'),
+                    customerSelect: document.getElementById('customer-select'),
+                    productModal: document.getElementById('product-modal'),
+                    actionModal: document.getElementById('action-modal'),
+                    customerModal: document.getElementById('customer-modal'),
+                    employeeModal: document.getElementById('employee-modal'),
+                    productName: document.getElementById('product-name'),
+                    productPrice: document.getElementById('product-price'),
+                    productStock: document.getElementById('product-stock'),
+                    productCategory: document.getElementById('product-category'),
+                    productBarcode: document.getElementById('product-barcode'),
+                    saveProductBtn: document.getElementById('save-product-btn'),
+                    actionProductName: document.getElementById('action-product-name'),
+                    actionProductPrice: document.getElementById('action-product-price'),
+                    actionProductStock: document.getElementById('action-product-stock'),
+                    actionProductCategory: document.getElementById('action-product-category'),
+                    actionProductBarcode: document.getElementById('action-product-barcode'),
+                    actionQuantity: document.getElementById('action-quantity'),
+                    addToCartBtn: document.getElementById('add-to-cart-btn'),
+                    editProductBtn: document.getElementById('edit-product-btn'),
+                    deleteProductBtn: document.getElementById('delete-product-btn'),
+                    receipt: document.getElementById('receipt'),
+                    receiptBranch: document.getElementById('receipt-branch'),
+                    receiptDate: document.getElementById('receipt-date'),
+                    receiptCashier: document.getElementById('receipt-cashier'),
+                    receiptCustomer: document.getElementById('receipt-customer'),
+                    receiptCustomerName: document.getElementById('receipt-customer-name'),
+                    receiptCustomerPhone: document.getElementById('receipt-customer-phone'),
+                    receiptItemsBody: document.getElementById('receipt-items-body'),
+                    receiptSubtotal: document.getElementById('receipt-subtotal'),
+                    receiptDiscount: document.getElementById('receipt-discount'),
+                    receiptTotal: document.getElementById('receipt-total'),
+                    receiptNumber: document.getElementById('receipt-number'),
+                    receiptPayment: document.getElementById('receipt-payment'),
+                    receiptTillNumber: document.getElementById('receipt-till-number'),
+                    closeModalBtns: document.querySelectorAll('.close-modal'),
+                    modalTitle: document.getElementById('modal-title'),
+                    customerModalTitle: document.getElementById('customer-modal-title'),
+                    customerName: document.getElementById('customer-name'),
+                    customerPhone: document.getElementById('customer-phone'),
+                    customerEmail: document.getElementById('customer-email'),
+                    customerAddress: document.getElementById('customer-address'),
+                    saveCustomerBtn: document.getElementById('save-customer-btn'),
+                    addCustomerBtn: document.getElementById('add-customer-btn'),
+                    employeeModalTitle: document.getElementById('employee-modal-title'),
+                    employeeName: document.getElementById('employee-name'),
+                    employeeUsername: document.getElementById('employee-username'),
+                    employeePassword: document.getElementById('employee-password'),
+                    employeeRole: document.getElementById('employee-role'),
+                    employeeBranch: document.getElementById('employee-branch'),
+                    employeeStatus: document.getElementById('employee-status'),
+                    saveEmployeeBtn: document.getElementById('save-employee-btn'),
+                    addEmployeeBtn: document.getElementById('add-employee-btn'),
+                    salesReportSection: document.getElementById('sales-report-section'),
+                    customerSection: document.getElementById('customer-section'),
+                    employeeSection: document.getElementById('employee-section'),
+                    salesBranchFilter: document.getElementById('sales-branch-filter'),
+                    salesTimeFilter: document.getElementById('sales-time-filter'),
+                    salesStartDate: document.getElementById('sales-start-date'),
+                    salesEndDate: document.getElementById('sales-end-date'),
+                    applySalesFilter: document.getElementById('apply-sales-filter'),
+                    exportSalesBtn: document.getElementById('export-sales-btn'),
+                    totalSalesAmount: document.getElementById('total-sales-amount'),
+                    totalTransactions: document.getElementById('total-transactions'),
+                    averageSale: document.getElementById('average-sale'),
+                    totalItemsSold: document.getElementById('total-items-sold'),
+                    salesReportData: document.getElementById('sales-report-data'),
+                    customerData: document.getElementById('customer-data'),
+                    employeeData: document.getElementById('employee-data'),
+                    securityVerification: document.getElementById('security-verification'),
+                    networkStatus: document.getElementById('network-status')
+                };
+            }
+            
+            loadInitialState() {
+                try {
+                    const savedBranch = localStorage.getItem('current_branch');
+                    const savedUser = localStorage.getItem('current_user');
+                    const savedCart = localStorage.getItem('cart');
+                    const savedSubtotal = localStorage.getItem('cart_subtotal');
+                    const savedDiscount = localStorage.getItem('cart_discount');
+                    const savedTotal = localStorage.getItem('cart_total');
+                    const savedCustomer = localStorage.getItem('current_customer');
+                    
+                    this.state.currentBranch = savedBranch || "nairobi";
+                    this.state.currentUser = savedUser ? JSON.parse(savedUser) : null;
+                    this.state.cart = savedCart ? JSON.parse(savedCart) : [];
+                    this.state.subtotal = savedSubtotal ? parseFloat(savedSubtotal) : 0;
+                    this.state.discount = savedDiscount ? parseFloat(savedDiscount) : 0;
+                    this.state.total = savedTotal ? parseFloat(savedTotal) : 0;
+                    this.state.currentCustomerId = savedCustomer ? parseInt(savedCustomer) : null;
+                } catch (error) {
+                    console.error("Error loading initial state:", error);
+                }
+            }
+            
+            async init() {
+                if (!this.verifyDOM()) {
+                    console.error("Critical DOM elements missing");
+                    return;
+                }
+                
+                this.setupEventListeners();
+                
+                // Initialize DataManager
+                await DataManager.initialize();
+                
+                // Update network status
+                this.updateNetworkStatus();
+                
+                if (this.state.currentUser) {
+                    this.showPOSInterface();
+                } else {
+                    this.showLoginScreen();
+                }
+            }
+            
+            verifyDOM() {
+                const requiredElements = [
+                    'loginOverlay', 'loginForm', 'usernameInput', 'passwordInput', 'roleInput',
+                    'posInterface', 'productsContainer', 'cartContainer', 'totalElement', 
+                    'checkoutBtn', 'branchSelector', 'logoutBtn'
+                ];
+                
+                return requiredElements.every(id => {
+                    if (!this.dom[id]) {
+                        console.error(`Missing DOM element: ${id}`);
+                        return false;
+                    }
+                    return true;
+                });
+            }
+            
+            updateNetworkStatus() {
+                const isOnline = navigator.onLine;
+                this.dom.networkStatus.textContent = isOnline ? 'Online' : 'Offline';
+                this.dom.networkStatus.className = `network-status ${isOnline ? 'online' : 'offline'}`;
+            }
+            
+            dataUpdated() {
+                this.loadProducts();
+                this.loadCustomers();
+                this.loadEmployees();
+                
+                if (this.state.showSalesReport) {
+                    this.generateSalesReport();
+                }
+            }
+            
+            clearLoginForm() {
+                this.dom.usernameInput.value = '';
+                this.dom.passwordInput.value = '';
+                this.dom.roleInput.value = '';
+            }
+            
+            setupEventListeners() {
+                // Login form submission
+                this.dom.loginForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    await this.handleLogin();
+                });
+                
+                // POS interface event listeners
+                this.dom.branchSelector.addEventListener('change', () => this.updateCurrentBranch());
+                this.dom.logoutBtn.addEventListener('click', () => this.logout());
+                this.dom.adminDashboardBtn.addEventListener('click', () => {
+                    window.location.href = 'admin.html';
+                });
+                this.dom.salesReportBtn.addEventListener('click', () => this.toggleSalesReport());
+                this.dom.customerManagerBtn.addEventListener('click', () => this.toggleCustomerSection());
+                this.dom.employeeManagerBtn.addEventListener('click', () => this.toggleEmployeeSection());
+                this.dom.addProductBtn.addEventListener('click', () => {
+                    this.resetProductForm();
+                    this.showModal(this.dom.productModal);
+                });
+                this.dom.saveProductBtn.addEventListener('click', () => this.saveProduct());
+                this.dom.checkoutBtn.addEventListener('click', () => this.checkout());
+                this.dom.clearCartBtn.addEventListener('click', () => {
+                    this.state.cart = [];
+                    this.state.subtotal = 0;
+                    this.state.discount = 0;
+                    this.state.total = 0;
+                    this.updateCartDisplay();
+                });
+                this.dom.addToCartBtn.addEventListener('click', () => this.addToCart());
+                this.dom.editProductBtn.addEventListener('click', () => {
+                    this.hideModal(this.dom.actionModal);
+                    this.setupEditForm(this.state.currentProductId);
+                });
+                this.dom.deleteProductBtn.addEventListener('click', () => this.deleteProduct(this.state.currentProductId));
+                this.dom.searchBtn.addEventListener('click', () => {
+                    const searchTerm = this.dom.productSearch.value.trim();
+                    this.loadProducts(searchTerm);
+                });
+                this.dom.productSearch.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        const searchTerm = this.dom.productSearch.value.trim();
+                        this.loadProducts(searchTerm);
+                    }
+                });
+                this.dom.applySalesFilter.addEventListener('click', () => this.generateSalesReport());
+                this.dom.exportSalesBtn.addEventListener('click', () => this.exportSalesData());
+                this.dom.applyDiscountBtn.addEventListener('click', () => this.applyDiscount());
+                this.dom.discountInput.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        this.applyDiscount();
+                    }
+                });
+                this.dom.customerSelect.addEventListener('change', () => {
+                    this.state.currentCustomerId = this.dom.customerSelect.value ? parseInt(this.dom.customerSelect.value) : null;
+                    localStorage.setItem('current_customer', this.state.currentCustomerId);
+                });
+                this.dom.addCustomerBtn.addEventListener('click', () => {
+                    this.resetCustomerForm();
+                    this.showModal(this.dom.customerModal);
+                });
+                this.dom.saveCustomerBtn.addEventListener('click', () => this.saveCustomer());
+                this.dom.addEmployeeBtn.addEventListener('click', () => {
+                    this.resetEmployeeForm();
+                    this.showModal(this.dom.employeeModal);
+                });
+                this.dom.saveEmployeeBtn.addEventListener('click', () => this.saveEmployee());
+                
+                // Modal close buttons
+                this.dom.closeModalBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const modal = btn.closest('.modal');
+                        this.hideModal(modal);
+                        if (modal === this.dom.productModal) {
+                            this.resetProductForm();
+                        } else if (modal === this.dom.customerModal) {
+                            this.resetCustomerForm();
+                        } else if (modal === this.dom.employeeModal) {
+                            this.resetEmployeeForm();
+                        }
+                    });
+                });
+                
+                // Close modal when clicking outside
+                window.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal')) {
+                        this.hideModal(e.target);
+                        if (e.target === this.dom.productModal) {
+                            this.resetProductForm();
+                        } else if (e.target === this.dom.customerModal) {
+                            this.resetCustomerForm();
+                        } else if (e.target === this.dom.employeeModal) {
+                            this.resetEmployeeForm();
+                        }
+                    }
+                });
+
+                // Reset session timer on user activity
+                document.addEventListener('mousemove', () => this.resetSessionTimer());
+                document.addEventListener('keypress', () => this.resetSessionTimer());
+                document.addEventListener('click', () => this.resetSessionTimer());
+                
+                // Network status events
+                window.addEventListener('online', () => {
+                    this.updateNetworkStatus();
+                    Utils.showNotification("Back online - synchronizing data", "success");
+                    DataManager.initialize(); // Try to reconnect
+                });
+                
+                window.addEventListener('offline', () => {
+                    this.updateNetworkStatus();
+                    Utils.showNotification("Working offline - changes will sync when back online", "warning");
+                });
+            }
+            
+            resetSessionTimer() {
+                if (this.state.sessionTimeout) {
+                    clearTimeout(this.state.sessionTimeout);
+                }
+                this.state.sessionTimeout = setTimeout(() => {
+                    if (this.state.currentUser) {
+                        Utils.showNotification("Session timed out due to inactivity", "warning");
+                        this.logout();
+                    }
+                }, 30 * 60 * 1000); // 30 minutes
+            }
+            
+            showLoginScreen() {
+                this.dom.loginOverlay.style.display = 'flex';
+                this.dom.posInterface.style.display = 'none';
+            }
+            
+            showPOSInterface() {
+                this.dom.loginOverlay.style.display = 'none';
+                this.dom.posInterface.style.display = 'block';
+                this.loadProducts();
+                this.loadCustomers();
+                this.loadEmployees();
+                this.updateUI();
+            }
+            
+            toggleSalesReport() {
+                this.state.showSalesReport = !this.state.showSalesReport;
+                this.state.showCustomerSection = false;
+                this.state.showEmployeeSection = false;
+                
+                if (this.state.showSalesReport) {
+                    this.dom.salesReportSection.style.display = 'block';
+                    this.dom.customerSection.style.display = 'none';
+                    this.dom.employeeSection.style.display = 'none';
+                    this.generateSalesReport();
+                } else {
+                    this.dom.salesReportSection.style.display = 'none';
+                }
+            }
+            
+            toggleCustomerSection() {
+                this.state.showCustomerSection = !this.state.showCustomerSection;
+                this.state.showSalesReport = false;
+                this.state.showEmployeeSection = false;
+                
+                if (this.state.showCustomerSection) {
+                    this.dom.customerSection.style.display = 'block';
+                    this.dom.salesReportSection.style.display = 'none';
+                    this.dom.employeeSection.style.display = 'none';
+                    this.loadCustomers();
+                } else {
+                    this.dom.customerSection.style.display = 'none';
+                }
+            }
+            
+            toggleEmployeeSection() {
+                this.state.showEmployeeSection = !this.state.showEmployeeSection;
+                this.state.showSalesReport = false;
+                this.state.showCustomerSection = false;
+                
+                if (this.state.showEmployeeSection) {
+                    this.dom.employeeSection.style.display = 'block';
+                    this.dom.salesReportSection.style.display = 'none';
+                    this.dom.customerSection.style.display = 'none';
+                    this.loadEmployees();
+                } else {
+                    this.dom.employeeSection.style.display = 'none';
+                }
+            }
+            
+            async handleLogin() {
+                const username = Utils.sanitizeInput(this.dom.usernameInput.value.trim());
+                const password = Utils.sanitizeInput(this.dom.passwordInput.value.trim());
+                const role = Utils.sanitizeInput(this.dom.roleInput.value);
+                
+                if (!username || !password || !role) {
+                    Utils.showNotification("Please fill in all fields", "error");
+                    return;
+                }
+                
+                // Show security verification
+                this.dom.securityVerification.style.display = 'block';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                Utils.showLoading("Authenticating...");
+                
+                try {
+                    const users = DataManager.getUsers();
+                    
+                    const user = users.find(u => 
+                        u.username.toLowerCase() === username.toLowerCase() && 
+                        u.password === password && 
+                        u.role.toLowerCase() === role.toLowerCase()
+                    );
+                    
+                    if (user) {
+                        user.lastLogin = new Date().toISOString();
+                        DataManager.saveUsers(users);
+                        
+                        this.state.currentUser = user;
+                        localStorage.setItem('current_user', JSON.stringify(user));
+                        
+                        this.clearLoginForm();
+                        this.showPOSInterface();
+                        Utils.showNotification(`Welcome, ${user.name}!`, "success");
+                    } else {
+                        Utils.showNotification("Invalid credentials or access level", "error");
+                    }
+                } catch (error) {
+                    console.error("Login error:", error);
+                    Utils.showNotification("An error occurred during login", "error");
+                } finally {
+                    Utils.hideLoading();
+                    this.dom.securityVerification.style.display = 'none';
+                }
+            }
+            
+            logout() {
+                this.state.currentUser = null;
+                this.state.cart = [];
+                this.state.subtotal = 0;
+                this.state.discount = 0;
+                this.state.total = 0;
+                this.state.showSalesReport = false;
+                this.state.showCustomerSection = false;
+                this.state.showEmployeeSection = false;
+                localStorage.removeItem('current_user');
+                localStorage.removeItem('cart');
+                localStorage.removeItem('cart_subtotal');
+                localStorage.removeItem('cart_discount');
+                localStorage.removeItem('cart_total');
+                localStorage.removeItem('current_customer');
+                
+                this.clearLoginForm();
+                this.showLoginScreen();
+                Utils.showNotification("You have been logged out", "info");
+            }
+            
+            updateUI() {
+                if (this.state.currentUser) {
+                    this.dom.currentUserSpan.textContent = `${this.state.currentUser.name} (${this.state.currentUser.role})`;
+                    this.dom.adminDashboardBtn.style.display = this.state.currentUser.role === 'admin' ? 'block' : 'none';
+                    this.dom.salesReportBtn.style.display = 
+                        (this.state.currentUser.role === 'admin' || this.state.currentUser.role === 'manager') ? 'block' : 'none';
+                    this.dom.customerManagerBtn.style.display = 
+                        (this.state.currentUser.role === 'admin' || this.state.currentUser.role === 'manager') ? 'block' : 'none';
+                    this.dom.employeeManagerBtn.style.display = 
+                        (this.state.currentUser.role === 'admin' || this.state.currentUser.role === 'manager') ? 'block' : 'none';
+                    this.dom.addProductBtn.style.display = 
+                        (this.state.currentUser.role === 'admin' || this.state.currentUser.role === 'manager') ? 'block' : 'none';
+                }
+                
+                this.dom.branchSelector.value = this.state.currentBranch;
+                this.dom.checkoutBtn.disabled = this.state.cart.length === 0;
+            }
+            
+            getCurrentBranchProducts() {
+                const branches = DataManager.getBranches();
+                return branches[this.state.currentBranch]?.products || [];
+            }
+            
+            updateCurrentBranch() {
+                this.state.currentBranch = this.dom.branchSelector.value;
+                try {
+                    localStorage.setItem('current_branch', this.state.currentBranch);
+                } catch (error) {
+                    console.error("Error saving current branch:", error);
+                }
+                this.loadProducts();
+                this.updateUI();
+            }
+            
+            async loadProducts(searchTerm = "") {
+                if (!this.dom.productsContainer || !this.dom.productsLoading) return;
+                
+                this.dom.productsLoading.style.display = 'block';
+                this.dom.productsContainer.style.display = 'none';
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                const products = this.getCurrentBranchProducts();
+                
+                if (searchTerm) {
+                    this.state.filteredProducts = products.filter(p => 
+                        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (p.category && p.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (p.barcode && p.barcode.includes(searchTerm))
+                    );
+                } else {
+                    this.state.filteredProducts = null;
+                }
+                
+                const displayProducts = this.state.filteredProducts || products;
+                
+                this.dom.productsContainer.innerHTML = displayProducts.map(product => `
+                    <div class="product-card" data-id="${product.id}">
+                        ${product.stock <= 5 ? `<span class="badge ${product.stock === 0 ? 'danger-badge' : 'warning-badge'}">${product.stock === 0 ? 'Out' : 'Low'}</span>` : ''}
+                        <h3>${product.name}</h3>
+                        <p class="price">${Utils.formatCurrency(product.price)}</p>
+                        <p class="stock ${product.stock <= 5 ? 'stock-warning' : ''}">
+                            Stock: ${product.stock}
+                        </p>
+                        ${product.category ? `<span class="category-tag">${product.category}</span>` : ''}
+                    </div>
+                `).join('');
+                
+                this.dom.productsLoading.style.display = 'none';
+                this.dom.productsContainer.style.display = 'grid';
+                
+                // Set up click handlers for product cards
+                document.querySelectorAll('.product-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.tagName === 'BUTTON') return;
+                        
+                        const productId = parseInt(card.getAttribute('data-id'));
+                        this.showProductActions(productId);
+                    });
+                });
+            }
+            
+            loadCustomers() {
+                const customers = DataManager.getCustomers();
+                
+                // Update customer dropdown
+                this.dom.customerSelect.innerHTML = `
+                    <option value="">Walk-in Customer</option>
+                    ${customers.map(c => `<option value="${c.id}" ${this.state.currentCustomerId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+                `;
+                
+                // Update customer table if visible
+                if (this.dom.customerData) {
+                    this.dom.customerData.innerHTML = customers.map(customer => `
+                        <tr>
+                            <td>${customer.name}</td>
+                            <td>${customer.phone}</td>
+                            <td>${customer.email || 'N/A'}</td>
+                            <td>${customer.address || 'N/A'}</td>
+                            <td>
+                                <button class="edit-btn" data-id="${customer.id}">Edit</button>
+                                <button class="delete-btn" data-id="${customer.id}">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    
+                    // Add event listeners to customer buttons
+                    document.querySelectorAll('.edit-btn[data-id]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const customerId = parseInt(btn.getAttribute('data-id'));
+                            this.setupEditCustomerForm(customerId);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-btn[data-id]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const customerId = parseInt(btn.getAttribute('data-id'));
+                            this.deleteCustomer(customerId);
+                        });
+                    });
+                }
+            }
+            
+            loadEmployees() {
+                const users = DataManager.getUsers();
+                const currentUser = this.state.currentUser;
+                
+                // Filter employees based on current user's permissions
+                let displayUsers = users;
+                if (currentUser.role === 'manager') {
+                    // Managers can only see cashiers at their branch
+                    displayUsers = users.filter(u => 
+                        u.role === 'cashier' && u.branch === currentUser.branch
+                    );
+                }
+                
+                // Update employee table if visible
+                if (this.dom.employeeData) {
+                    this.dom.employeeData.innerHTML = displayUsers.map(user => {
+                        const branches = DataManager.getBranches();
+                        const branchName = branches[user.branch]?.name || user.branch;
+                        
+                        return `
+                            <tr>
+                                <td>${user.name}</td>
+                                <td>${user.username}</td>
+                                <td>${user.role}</td>
+                                <td>${branchName}</td>
+                                <td>${user.status}</td>
+                                <td>
+                                    ${(currentUser.role === 'admin' || 
+                                      (currentUser.role === 'manager' && user.role === 'cashier')) ? 
+                                        `<button class="edit-btn" data-id="${user.id}">Edit</button>` : ''}
+                                    ${(currentUser.role === 'admin' || 
+                                      (currentUser.role === 'manager' && user.role === 'cashier')) ? 
+                                        `<button class="delete-btn" data-id="${user.id}">Delete</button>` : ''}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                    
+                    // Add event listeners to employee buttons
+                    document.querySelectorAll('.edit-btn[data-id]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const userId = parseInt(btn.getAttribute('data-id'));
+                            this.setupEditEmployeeForm(userId);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-btn[data-id]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const userId = parseInt(btn.getAttribute('data-id'));
+                            this.deleteEmployee(userId);
+                        });
+                    });
+                }
+            }
+            
+            showProductActions(productId) {
+                const products = this.getCurrentBranchProducts();
+                const product = products.find(p => p.id === productId);
+                if (!product) return;
+                
+                this.state.currentProductId = productId;
+                
+                // Update the action modal with product details
+                if (this.dom.actionProductName) this.dom.actionProductName.textContent = product.name;
+                if (this.dom.actionProductPrice) this.dom.actionProductPrice.textContent = Utils.formatCurrency(product.price);
+                if (this.dom.actionProductStock) this.dom.actionProductStock.textContent = `${product.stock} remaining`;
+                if (this.dom.actionProductCategory) this.dom.actionProductCategory.textContent = product.category || 'N/A';
+                if (this.dom.actionProductBarcode) this.dom.actionProductBarcode.textContent = product.barcode || 'N/A';
+                if (this.dom.actionQuantity) {
+                    this.dom.actionQuantity.value = 1;
+                    this.dom.actionQuantity.max = product.stock;
+                }
+                
+                // Enable/disable add to cart button based on stock
+                if (this.dom.addToCartBtn) {
+                    this.dom.addToCartBtn.disabled = product.stock <= 0;
+                    this.dom.addToCartBtn.textContent = product.stock <= 0 ? 'Out of Stock' : 'Add to Cart';
+                }
+                
+                // Show/hide edit and delete buttons based on user role
+                const canEdit = this.state.currentUser?.role === 'admin' || this.state.currentUser?.role === 'manager';
+                if (this.dom.editProductBtn) {
+                    this.dom.editProductBtn.style.display = canEdit ? 'block' : 'none';
+                }
+                if (this.dom.deleteProductBtn) {
+                    this.dom.deleteProductBtn.style.display = canEdit ? 'block' : 'none';
+                }
+                
+                // Show the action modal
+                this.showModal(this.dom.actionModal);
+            }
+            
+            resetProductForm() {
+                if (!this.dom.productName || !this.dom.productPrice || !this.dom.productStock) return;
+                
+                this.dom.productName.value = '';
+                this.dom.productPrice.value = '';
+                this.dom.productStock.value = '';
+                this.dom.productCategory.value = '';
+                this.dom.productBarcode.value = '';
+                this.state.isEditing = false;
+                if (this.dom.modalTitle) {
+                    this.dom.modalTitle.textContent = "Add New Product";
+                }
+                
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('input').forEach(input => {
+                    input.classList.remove('error');
+                });
+            }
+            
+            resetCustomerForm() {
+                if (!this.dom.customerName || !this.dom.customerPhone) return;
+                
+                this.dom.customerName.value = '';
+                this.dom.customerPhone.value = '';
+                this.dom.customerEmail.value = '';
+                this.dom.customerAddress.value = '';
+                this.state.isEditing = false;
+                if (this.dom.customerModalTitle) {
+                    this.dom.customerModalTitle.textContent = "Add New Customer";
+                }
+                
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('input').forEach(input => {
+                    input.classList.remove('error');
+                });
+            }
+            
+            resetEmployeeForm() {
+                if (!this.dom.employeeName || !this.dom.employeeUsername) return;
+                
+                this.dom.employeeName.value = '';
+                this.dom.employeeUsername.value = '';
+                this.dom.employeePassword.value = '';
+                this.dom.employeeRole.value = '';
+                this.dom.employeeBranch.value = '';
+                this.dom.employeeStatus.value = 'active';
+                this.state.isEditing = false;
+                if (this.dom.employeeModalTitle) {
+                    this.dom.employeeModalTitle.textContent = "Add New Employee";
+                }
+                
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('input').forEach(input => {
+                    input.classList.remove('error');
+                });
+            }
+            
+            setupEditForm(productId) {
+                const products = this.getCurrentBranchProducts();
+                const product = products.find(p => p.id === productId);
+                if (!product) return;
+                
+                this.state.isEditing = true;
+                this.state.currentProductId = productId;
+                if (this.dom.modalTitle) {
+                    this.dom.modalTitle.textContent = "Edit Product";
+                }
+                
+                if (this.dom.productName) this.dom.productName.value = product.name;
+                if (this.dom.productPrice) this.dom.productPrice.value = product.price;
+                if (this.dom.productStock) this.dom.productStock.value = product.stock;
+                if (this.dom.productCategory) this.dom.productCategory.value = product.category || '';
+                if (this.dom.productBarcode) this.dom.productBarcode.value = product.barcode || '';
+                
+                this.showModal(this.dom.productModal);
+            }
+            
+            setupEditCustomerForm(customerId) {
+                const customers = DataManager.getCustomers();
+                const customer = customers.find(c => c.id === customerId);
+                if (!customer) return;
+                
+                this.state.isEditing = true;
+                this.state.currentCustomerId = customerId;
+                if (this.dom.customerModalTitle) {
+                    this.dom.customerModalTitle.textContent = "Edit Customer";
+                }
+                
+                if (this.dom.customerName) this.dom.customerName.value = customer.name;
+                if (this.dom.customerPhone) this.dom.customerPhone.value = customer.phone;
+                if (this.dom.customerEmail) this.dom.customerEmail.value = customer.email || '';
+                if (this.dom.customerAddress) this.dom.customerAddress.value = customer.address || '';
+                
+                this.showModal(this.dom.customerModal);
+            }
+            
+            setupEditEmployeeForm(employeeId) {
+                const users = DataManager.getUsers();
+                const user = users.find(u => u.id === employeeId);
+                if (!user) return;
+                
+                this.state.isEditing = true;
+                this.state.currentEmployeeId = employeeId;
+                if (this.dom.employeeModalTitle) {
+                    this.dom.employeeModalTitle.textContent = "Edit Employee";
+                }
+                
+                if (this.dom.employeeName) this.dom.employeeName.value = user.name;
+                if (this.dom.employeeUsername) this.dom.employeeUsername.value = user.username;
+                if (this.dom.employeePassword) this.dom.employeePassword.value = user.password;
+                if (this.dom.employeeRole) this.dom.employeeRole.value = user.role;
+                if (this.dom.employeeBranch) this.dom.employeeBranch.value = user.branch;
+                if (this.dom.employeeStatus) this.dom.employeeStatus.value = user.status;
+                
+                this.showModal(this.dom.employeeModal);
+            }
+            
+            async saveProduct() {
+                if (!this.dom.productName || !this.dom.productPrice || !this.dom.productStock) return;
+                
+                const product = {
+                    name: Utils.sanitizeInput(this.dom.productName.value),
+                    price: Utils.sanitizeInput(this.dom.productPrice.value),
+                    stock: Utils.sanitizeInput(this.dom.productStock.value),
+                    category: Utils.sanitizeInput(this.dom.productCategory.value),
+                    barcode: Utils.sanitizeInput(this.dom.productBarcode.value)
+                };
+                
+                const errors = Utils.validateProduct(product);
+                let hasErrors = false;
+                
+                for (const [field, message] of Object.entries(errors)) {
+                    const errorElement = document.getElementById(`product-${field}-error`);
+                    if (errorElement) {
+                        errorElement.textContent = message;
+                        errorElement.style.display = 'block';
+                        document.getElementById(`product-${field}`).classList.add('error');
+                        hasErrors = true;
+                    }
+                }
+                
+                if (hasErrors) return;
+                
+                try {
+                    if (this.state.isEditing) {
+                        await DataManager.updateProduct(this.state.currentBranch, this.state.currentProductId, product);
+                        Utils.showNotification("Product updated successfully!", "success");
+                    } else {
+                        await DataManager.addProduct(this.state.currentBranch, product);
+                        Utils.showNotification("Product added successfully!", "success");
+                    }
+                    
+                    this.hideModal(this.dom.productModal);
+                    this.loadProducts();
+                } catch (error) {
+                    console.error("Error saving product:", error);
+                    Utils.showNotification("An error occurred while saving the product", "error");
+                }
+            }
+            
+            async saveCustomer() {
+                if (!this.dom.customerName || !this.dom.customerPhone) return;
+                
+                const customer = {
+                    name: Utils.sanitizeInput(this.dom.customerName.value),
+                    phone: Utils.sanitizeInput(this.dom.customerPhone.value),
+                    email: Utils.sanitizeInput(this.dom.customerEmail.value),
+                    address: Utils.sanitizeInput(this.dom.customerAddress.value)
+                };
+                
+                const errors = Utils.validateCustomer(customer);
+                let hasErrors = false;
+                
+                for (const [field, message] of Object.entries(errors)) {
+                    const errorElement = document.getElementById(`customer-${field}-error`);
+                    if (errorElement) {
+                        errorElement.textContent = message;
+                        errorElement.style.display = 'block';
+                        document.getElementById(`customer-${field}`).classList.add('error');
+                        hasErrors = true;
+                    }
+                }
+                
+                if (hasErrors) return;
+                
+                try {
+                    if (this.state.isEditing) {
+                        await DataManager.updateCustomer(this.state.currentCustomerId, customer);
+                        Utils.showNotification("Customer updated successfully!", "success");
+                    } else {
+                        await DataManager.addCustomer(customer);
+                        Utils.showNotification("Customer added successfully!", "success");
+                    }
+                    
+                    this.hideModal(this.dom.customerModal);
+                    this.loadCustomers();
+                } catch (error) {
+                    console.error("Error saving customer:", error);
+                    Utils.showNotification("An error occurred while saving the customer", "error");
+                }
+            }
+            
+            async saveEmployee() {
+                if (!this.dom.employeeName || !this.dom.employeeUsername) return;
+                
+                const employee = {
+                    name: Utils.sanitizeInput(this.dom.employeeName.value),
+                    username: Utils.sanitizeInput(this.dom.employeeUsername.value),
+                    password: Utils.sanitizeInput(this.dom.employeePassword.value),
+                    role: Utils.sanitizeInput(this.dom.employeeRole.value),
+                    branch: Utils.sanitizeInput(this.dom.employeeBranch.value),
+                    status: Utils.sanitizeInput(this.dom.employeeStatus.value)
+                };
+                
+                const errors = Utils.validateEmployee(employee);
+                let hasErrors = false;
+                
+                for (const [field, message] of Object.entries(errors)) {
+                    const errorElement = document.getElementById(`employee-${field}-error`);
+                    if (errorElement) {
+                        errorElement.textContent = message;
+                        errorElement.style.display = 'block';
+                        document.getElementById(`employee-${field}`).classList.add('error');
+                        hasErrors = true;
+                    }
+                }
+                
+                if (hasErrors) return;
+                
+                // Check permissions
+                const currentUser = this.state.currentUser;
+                if (currentUser.role === 'manager') {
+                    // Managers can only create/edit cashiers at their branch
+                    if (employee.role !== 'cashier') {
+                        Utils.showNotification("Managers can only create/edit cashiers", "error");
+                        return;
+                    }
+                    if (employee.branch !== currentUser.branch) {
+                        Utils.showNotification("Managers can only manage employees at their branch", "error");
+                        return;
+                    }
+                }
+                
+                try {
+                    if (this.state.isEditing) {
+                        await DataManager.updateEmployee(this.state.currentEmployeeId, employee);
+                        Utils.showNotification("Employee updated successfully!", "success");
+                    } else {
+                        await DataManager.addEmployee(employee);
+                        Utils.showNotification("Employee added successfully!", "success");
+                    }
+                    
+                    this.hideModal(this.dom.employeeModal);
+                    this.loadEmployees();
+                } catch (error) {
+                    console.error("Error saving employee:", error);
+                    Utils.showNotification(error.message || "An error occurred while saving the employee", "error");
+                }
+            }
+            
+            async deleteProduct(productId) {
+                if (confirm("Are you sure you want to delete this product?")) {
+                    try {
+                        await DataManager.deleteProduct(this.state.currentBranch, productId);
+                        Utils.showNotification("Product deleted successfully!", "success");
+                        this.hideModal(this.dom.actionModal);
+                        this.loadProducts();
+                    } catch (error) {
+                        console.error("Error deleting product:", error);
+                        Utils.showNotification("An error occurred while deleting the product", "error");
+                    }
+                }
+            }
+            
+            async deleteCustomer(customerId) {
+                if (confirm("Are you sure you want to delete this customer?")) {
+                    try {
+                        // Check if customer is used in any sales
+                        const sales = DataManager.getSalesRecords();
+                        const customerUsed = sales.some(sale => sale.customerId === customerId);
+                        
+                        if (customerUsed) {
+                            Utils.showNotification("Cannot delete customer with sales history", "error");
+                            return;
+                        }
+                        
+                        await DataManager.deleteCustomer(customerId);
+                        Utils.showNotification("Customer deleted successfully!", "success");
+                        this.loadCustomers();
+                    } catch (error) {
+                        console.error("Error deleting customer:", error);
+                        Utils.showNotification("An error occurred while deleting the customer", "error");
+                    }
+                }
+            }
+            
+            async deleteEmployee(employeeId) {
+                if (confirm("Are you sure you want to delete this employee?")) {
+                    try {
+                        const currentUser = this.state.currentUser;
+                        const users = DataManager.getUsers();
+                        const userToDelete = users.find(u => u.id === employeeId);
+                        
+                        // Check permissions
+                        if (currentUser.role === 'manager') {
+                            // Managers can only delete cashiers at their branch
+                            if (userToDelete.role !== 'cashier' || userToDelete.branch !== currentUser.branch) {
+                                Utils.showNotification("You don't have permission to delete this employee", "error");
+                                return;
+                            }
+                        }
+                        
+                        // Prevent deleting yourself
+                        if (userToDelete.id === currentUser.id) {
+                            Utils.showNotification("You cannot delete your own account", "error");
+                            return;
+                        }
+                        
+                        await DataManager.deleteEmployee(employeeId);
+                        Utils.showNotification("Employee deleted successfully!", "success");
+                        this.loadEmployees();
+                    } catch (error) {
+                        console.error("Error deleting employee:", error);
+                        Utils.showNotification("An error occurred while deleting the employee", "error");
+                    }
+                }
+            }
+            
+            addToCart() {
+                if (this.state.currentProductId === null || !this.dom.actionQuantity) return;
+                
+                const quantity = parseInt(this.dom.actionQuantity.value) || 1;
+                const products = this.getCurrentBranchProducts();
+                const product = products.find(p => p.id === this.state.currentProductId);
+                
+                if (!product || product.stock <= 0) return;
+                if (quantity > product.stock) {
+                    Utils.showNotification(`Only ${product.stock} items available in stock`, "warning");
+                    return;
+                }
+
+                const existingItem = this.state.cart.find(item => item.id === this.state.currentProductId);
+
+                if (existingItem) {
+                    existingItem.quantity += quantity;
+                } else {
+                    this.state.cart.push({ 
+                        ...product, 
+                        quantity: quantity 
+                    });
+                }
+
+                this.updateCartTotals();
+                this.hideModal(this.dom.actionModal);
+            }
+            
+            applyDiscount() {
+                const discountPercentage = parseFloat(this.dom.discountInput.value);
+                
+                if (isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
+                    Utils.showNotification("Please enter a valid discount percentage (0-100)", "error");
+                    return;
+                }
+                
+                this.state.discount = this.state.subtotal * (discountPercentage / 100);
+                this.state.total = this.state.subtotal - this.state.discount;
+                
+                this.updateCartDisplay();
+                Utils.showNotification(`Discount of ${discountPercentage}% applied`, "success");
+            }
+            
+            updateCartTotals() {
+                this.state.subtotal = this.state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                this.state.total = this.state.subtotal - this.state.discount;
+                this.updateCartDisplay();
+            }
+            
+            updateCartDisplay() {
+                if (!this.dom.cartContainer || !this.dom.subtotalElement || !this.dom.totalElement || 
+                    !this.dom.discountAmount || !this.dom.cartCount || !this.dom.checkoutBtn) return;
+                
+                this.dom.cartContainer.innerHTML = this.state.cart.map(item => `
+                    <div class="cart-item" data-id="${item.id}">
+                        <div class="cart-item-info">
+                            <span>${item.name}</span>
+                            <span class="cart-item-price">${Utils.formatCurrency(item.price * item.quantity)}</span>
+                        </div>
+                        <div class="cart-item-controls">
+                            <button class="quantity-btn minus">−</button>
+                            <span class="quantity">${item.quantity}</span>
+                            <button class="quantity-btn plus">+</button>
+                            <button class="remove-btn">×</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                this.dom.subtotalElement.textContent = Utils.formatCurrency(this.state.subtotal);
+                this.dom.discountAmount.textContent = Utils.formatCurrency(this.state.discount);
+                this.dom.totalElement.textContent = Utils.formatCurrency(this.state.total);
+                this.dom.cartCount.textContent = this.state.cart.reduce((sum, item) => sum + item.quantity, 0);
+                this.dom.checkoutBtn.disabled = this.state.cart.length === 0;
+                
+                try {
+                    localStorage.setItem('cart', JSON.stringify(this.state.cart));
+                    localStorage.setItem('cart_subtotal', this.state.subtotal);
+                    localStorage.setItem('cart_discount', this.state.discount);
+                    localStorage.setItem('cart_total', this.state.total);
+                } catch (error) {
+                    console.error("Error saving cart:", error);
+                }
+                
+                document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const itemId = parseInt(e.target.closest('.cart-item').getAttribute('data-id'));
+                        this.adjustCartQuantity(itemId, -1);
+                    });
+                });
+                
+                document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const itemId = parseInt(e.target.closest('.cart-item').getAttribute('data-id'));
+                        this.adjustCartQuantity(itemId, 1);
+                    });
+                });
+                
+                document.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const itemId = parseInt(e.target.closest('.cart-item').getAttribute('data-id'));
+                        this.removeFromCart(itemId);
+                    });
+                });
+            }
+            
+            adjustCartQuantity(itemId, change) {
+                const item = this.state.cart.find(item => item.id === itemId);
+                if (!item) return;
+                
+                const newQuantity = item.quantity + change;
+                
+                if (newQuantity <= 0) {
+                    this.removeFromCart(itemId);
+                } else {
+                    const products = this.getCurrentBranchProducts();
+                    const product = products.find(p => p.id === itemId);
+                    
+                    if (product && newQuantity > product.stock) {
+                        Utils.showNotification(`Only ${product.stock} items available in stock`, "warning");
+                        return;
+                    }
+                    
+                    item.quantity = newQuantity;
+                    this.updateCartTotals();
+                }
+            }
+            
+            removeFromCart(itemId) {
+                const index = this.state.cart.findIndex(item => item.id === itemId);
+                if (index !== -1) {
+                    this.state.cart.splice(index, 1);
+                    this.updateCartTotals();
+                }
+            }
+            
+            async checkout() {
+                if (this.state.cart.length === 0) {
+                    Utils.showNotification("Your cart is empty!", "error");
+                    return;
+                }
+                
+                Utils.showLoading("Processing sale...");
+                
+                try {
+                    const branches = DataManager.getBranches();
+                    const products = branches[this.state.currentBranch].products;
+                    
+                    // Check stock levels before processing
+                    for (const item of this.state.cart) {
+                        const product = products.find(p => p.id === item.id);
+                        if (!product || product.stock < item.quantity) {
+                            Utils.showNotification(`Not enough stock for ${item.name}`, "error");
+                            Utils.hideLoading();
+                            return;
+                        }
+                    }
+                    
+                    // Update stock levels
+                    for (const item of this.state.cart) {
+                        const product = products.find(p => p.id === item.id);
+                        if (product) {
+                            product.stock -= item.quantity;
+                        }
+                    }
+                    
+                    DataManager.saveBranches(branches);
+                    this.recordSale();
+                    this.generateReceipt();
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    this.printReceipt();
+                    
+                    // Reset cart
+                    this.state.cart = [];
+                    this.state.subtotal = 0;
+                    this.state.discount = 0;
+                    this.state.total = 0;
+                    this.dom.discountInput.value = '';
+                    this.updateCartDisplay();
+                    
+                    // Refresh data
+                    await this.loadProducts();
+                    
+                    // Refresh sales report if visible
+                    if (this.state.showSalesReport) {
+                        this.generateSalesReport();
+                    }
+                    
+                    Utils.showNotification("Sale completed successfully!", "success");
+                } catch (error) {
+                    console.error("Checkout error:", error);
+                    Utils.showNotification("An error occurred during checkout", "error");
+                } finally {
+                    Utils.hideLoading();
+                }
+            }
+            
+            recordSale() {
+                const salesRecords = DataManager.getSalesRecords();
+                const customers = DataManager.getCustomers();
+                const customer = customers.find(c => c.id === this.state.currentCustomerId);
+                
+                const saleRecord = {
+                    id: Date.now(),
+                    date: new Date().toISOString(),
+                    items: [...this.state.cart],
+                    subtotal: this.state.subtotal,
+                    discount: this.state.discount,
+                    total: this.state.total,
+                    branch: this.state.currentBranch,
+                    cashier: this.state.currentUser?.name || 'Unknown',
+                    customerId: this.state.currentCustomerId,
+                    customerName: customer?.name || 'Walk-in Customer',
+                    paymentMethod: 'MPESA'
+                };
+                
+                salesRecords.push(saleRecord);
+                DataManager.saveSalesRecords(salesRecords);
+            }
+            
+            generateReceipt() {
+                const now = new Date();
+                const formattedDate = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                
+                const branches = DataManager.getBranches();
+                const customers = DataManager.getCustomers();
+                const customer = customers.find(c => c.id === this.state.currentCustomerId);
+                
+                if (this.dom.receiptBranch) {
+                    this.dom.receiptBranch.textContent = branches[this.state.currentBranch].name;
+                }
+                if (this.dom.receiptDate) {
+                    this.dom.receiptDate.textContent = formattedDate;
+                }
+                if (this.dom.receiptCashier) {
+                    this.dom.receiptCashier.textContent = this.state.currentUser?.name || "Unknown";
+                }
+                if (this.dom.receiptNumber) {
+                    this.dom.receiptNumber.textContent = `FST${Math.floor(10000 + Math.random() * 90000)}`;
+                }
+                if (this.dom.receiptPayment) {
+                    this.dom.receiptPayment.textContent = "MPESA";
+                }
+                if (this.dom.receiptTillNumber) {
+                    this.dom.receiptTillNumber.textContent = "123456";
+                }
+                
+                if (customer && this.dom.receiptCustomer) {
+                    this.dom.receiptCustomer.style.display = 'block';
+                    this.dom.receiptCustomerName.textContent = customer.name;
+                    this.dom.receiptCustomerPhone.textContent = customer.phone;
+                } else if (this.dom.receiptCustomer) {
+                    this.dom.receiptCustomer.style.display = 'none';
+                }
+                
+                if (this.dom.receiptItemsBody) {
+                    this.dom.receiptItemsBody.innerHTML = this.state.cart.map(item => `
+                        <tr>
+                            <td class="product">${item.name}</td>
+                            <td class="qty">x${item.quantity}</td>
+                            <td class="price">${parseInt(item.price).toLocaleString()}</td>
+                            <td class="total">${(item.price * item.quantity).toLocaleString()}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                if (this.dom.receiptSubtotal) {
+                    this.dom.receiptSubtotal.textContent = this.state.subtotal.toLocaleString('en-KE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                }
+                if (this.dom.receiptDiscount) {
+                    this.dom.receiptDiscount.textContent = this.state.discount.toLocaleString('en-KE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                }
+                if (this.dom.receiptTotal) {
+                    this.dom.receiptTotal.textContent = this.state.total.toLocaleString('en-KE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                }
+            }
+            
+            generateSalesReport() {
+                const salesRecords = DataManager.getSalesRecords();
+                const branchFilter = this.dom.salesBranchFilter.value;
+                const timeFilter = this.dom.salesTimeFilter.value;
+                
+                // Get date range based on filter
+                let { start, end } = Utils.getDateRange(timeFilter);
+                
+                // Apply custom date range if selected
+                if (this.dom.salesStartDate.value && this.dom.salesEndDate.value) {
+                    start = new Date(this.dom.salesStartDate.value);
+                    end = new Date(this.dom.salesEndDate.value);
+                    end.setHours(23, 59, 59, 999); // Include the entire end day
+                }
+                
+                // Filter sales records
+                const filteredSales = salesRecords.filter(sale => {
+                    const saleDate = new Date(sale.date);
+                    const branchMatch = branchFilter === 'all' || sale.branch === branchFilter;
+                    const dateMatch = saleDate >= start && saleDate <= end;
+                    return branchMatch && dateMatch;
+                });
+                
+                // Calculate summary statistics
+                const totalSales = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+                const totalTransactions = filteredSales.length;
+                const averageSale = totalTransactions > 0 ? totalSales / totalTransactions : 0;
+                const totalItems = filteredSales.reduce((sum, sale) => 
+                    sum + sale.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0);
+                
+                // Update summary cards
+                this.dom.totalSalesAmount.textContent = Utils.formatCurrency(totalSales);
+                this.dom.totalTransactions.textContent = totalTransactions;
+                this.dom.averageSale.textContent = Utils.formatCurrency(averageSale);
+                this.dom.totalItemsSold.textContent = totalItems;
+                
+                // Update sales table
+                this.dom.salesReportData.innerHTML = filteredSales.map(sale => {
+                    const branches = DataManager.getBranches();
+                    const branchName = branches[sale.branch]?.name || sale.branch;
+                    const itemsCount = sale.items.reduce((sum, item) => sum + item.quantity, 0);
+                    
+                    return `
+                        <tr>
+                            <td>${Utils.formatDate(sale.date)}</td>
+                            <td>FST${sale.id.toString().slice(-5)}</td>
+                            <td>${branchName}</td>
+                            <td>${sale.cashier}</td>
+                            <td>${sale.customerName}</td>
+                            <td>${itemsCount}</td>
+                            <td>${Utils.formatCurrency(sale.subtotal)}</td>
+                            <td>${Utils.formatCurrency(sale.discount)}</td>
+                            <td>${Utils.formatCurrency(sale.total)}</td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                if (filteredSales.length === 0) {
+                    this.dom.salesReportData.innerHTML = `
+                        <tr>
+                            <td colspan="9" style="text-align: center;">No sales records found for the selected filters</td>
+                        </tr>
+                    `;
+                }
+            }
+            
+            exportSalesData() {
+                const salesRecords = DataManager.getSalesRecords();
+                const dataStr = JSON.stringify(salesRecords, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = `fastway_sales_${new Date().toISOString().split('T')[0]}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                Utils.showNotification("Sales data exported successfully", "success");
+            }
+            
+            printReceipt() {
+                if (!this.dom.receipt) return;
+                
+                this.dom.receipt.style.display = 'block';
+                
+                const printWindow = window.open('', '', 'width=600,height=600');
+                if (!printWindow) {
+                    Utils.showNotification("Popup was blocked. Please allow popups to print receipt.", "warning");
+                    this.dom.receipt.style.display = 'none';
+                    return;
+                }
+                
+                printWindow.document.write('<html><head><title>Fastway Receipt</title>');
+                printWindow.document.write('<style>body { font-family: monospace; } @page { size: auto; margin: 0; }</style>');
+                printWindow.document.write('</head><body>');
+                printWindow.document.write(this.dom.receipt.innerHTML);
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.focus();
+                
+                setTimeout(() => {
+                    printWindow.print();
+                    printWindow.close();
+                }, 500);
+                
+                this.dom.receipt.style.display = 'none';
+            }
+            
+            showModal(modal) {
+                if (modal) {
+                    modal.style.display = 'flex';
+                }
+            }
+            
+            hideModal(modal) {
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+        }
+
+        // Register service worker if supported
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+
+        // Initialize the POS system when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.posSystem = new POSSystem();
+            window.posSystem.init();
+        });
+    </script>
+</body>
+</html>
